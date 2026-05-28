@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gentoo Linux - Hướng dẫn cài đặt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue-400: #60b0ff;
+  --blue-500: #3b8eff;
+  --blue-600: #1a6aff;
+  --blue-glow: rgba(59,142,255,.35);
+  --surface: rgba(14,20,40,.55);
+  --border: rgba(59,142,255,.12);
+  --text: #c8d6e5;
+  --text-dim: #7a8aa8;
+  --bg: #080b18;
+  --card-bg: rgba(0,0,0,.4);
+  --nav-bg: rgba(8,11,24,.7);
+  --section-bg: rgba(14,20,40,.55);
+  --step-shadow: rgba(59,142,255,.3);
+  --done-color: #3bc86a;
+}
+
+.light {
+  --surface: rgba(235,240,255,.6);
+  --border: rgba(59,142,255,.15);
+  --text: #1a2035;
+  --text-dim: #5a6a85;
+  --bg: #eef1f8;
+  --card-bg: rgba(255,255,255,.5);
+  --nav-bg: rgba(255,255,255,.75);
+  --section-bg: rgba(255,255,255,.55);
+  --step-shadow: rgba(59,142,255,.2);
+  --done-color: #22a855;
+}
+.light .hero h1 { background: linear-gradient(135deg, #1a6aff 0%, #7c5cbf 50%, #1a6aff 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; }
+.light .hero-stats .num { color: #0a1a3a; }
+.light code { background: rgba(0,40,80,.08); color: #0066aa; }
+.light pre { color: #1a3050; }
+.light .hero .scroll-indicator { border-color: rgba(0,0,0,.15); }
+.light .hero .scroll-indicator::after { background: var(--blue-600); }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  overflow-x: hidden;
+  transition: background .4s, color .4s;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blue-500), #a78bfa);
+  z-index: 999;
+  transition: width .1s linear;
+}
+
+.bg-glow {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+}
+.bg-glow span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .5; }
+.bg-glow .g1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(59,142,255,.2), transparent); top: -200px; left: -150px; animation: float1 12s ease-in-out infinite; }
+.bg-glow .g2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(100,80,255,.15), transparent); bottom: -150px; right: -100px; animation: float2 15s ease-in-out infinite; }
+.bg-glow .g3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,200,255,.1), transparent); top: 50%; left: 50%; transform: translate(-50%,-50%); animation: float1 18s ease-in-out infinite reverse; }
+
+@keyframes float1 { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(60px,40px) scale(1.1); } }
+@keyframes float2 { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px,-60px) scale(1.05); } }
+
+.hero { position: relative; z-index: 1; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 3rem 1.5rem 4rem; }
+.hero-badge { display: inline-flex; align-items: center; gap: .5rem; padding: .4rem 1rem; border-radius: 100px; background: rgba(59,142,255,.1); border: 1px solid rgba(59,142,255,.2); font-size: .8rem; color: var(--blue-400); font-weight: 500; letter-spacing: .02em; margin-bottom: 1.5rem; animation: fadeUp .6s ease both; }
+.hero h1 { font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800; line-height: 1.15; background: linear-gradient(135deg, #60b0ff 0%, #a78bfa 50%, #60b0ff 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 4s linear infinite, fadeUp .6s .1s ease both; }
+.hero p { font-size: 1.1rem; color: var(--text-dim); margin-top: 1rem; max-width: 520px; animation: fadeUp .6s .2s ease both; }
+.hero-stats { display: flex; gap: 2.5rem; margin-top: 2.5rem; animation: fadeUp .6s .3s ease both; }
+.hero-stats div { text-align: center; }
+.hero-stats .num { font-size: 1.6rem; font-weight: 700; color: #fff; transition: color .4s; }
+.hero-stats .label { font-size: .78rem; color: var(--text-dim); margin-top: .2rem; }
+.hero .scroll-indicator { margin-top: 3rem; width: 26px; height: 42px; border: 2px solid rgba(255,255,255,.2); border-radius: 13px; position: relative; animation: fadeUp .6s .4s ease both; }
+.hero .scroll-indicator::after { content: ''; position: absolute; top: 7px; left: 50%; width: 4px; height: 8px; margin-left: -2px; background: var(--blue-400); border-radius: 2px; animation: scrollDot 2s ease infinite; }
+@keyframes scrollDot { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(10px); opacity: .3; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer { to { background-position: 200% center; } }
+
+nav {
+  position: fixed; top: 3px; left: 0; right: 0; z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem; height: 56px;
+  display: flex; align-items: center; gap: .5rem;
+  transition: background .4s;
+}
+.nav-brand { font-weight: 700; font-size: .9rem; color: #fff; white-space: nowrap; margin-right: .5rem; display: flex; align-items: center; gap: .4rem; }
+.light .nav-brand { color: #0a1a3a; }
+.nav-brand svg { width: 18px; height: 18px; flex-shrink: 0; }
+.nav-divider { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+
+.search-box {
+  display: flex; align-items: center; flex: 1; max-width: 280px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0 .6rem; transition: border-color .2s;
+}
+.search-box:focus-within { border-color: var(--blue-500); }
+.search-box svg { width: 14px; height: 14px; color: var(--text-dim); flex-shrink: 0; }
+.search-box input {
+  background: none; border: none; outline: none; color: var(--text);
+  font-family: inherit; font-size: .8rem; padding: .35rem .4rem; width: 100%;
+}
+.search-box input::placeholder { color: var(--text-dim); }
+
+.lang-switch { display: flex; margin-left: auto; background: rgba(255,255,255,.05); border-radius: 8px; padding: 2px; border: 1px solid var(--border); flex-shrink: 0; }
+.lang-btn { background: none; border: none; color: var(--text-dim); font-family: inherit; font-size: .75rem; font-weight: 600; padding: .25rem .55rem; border-radius: 6px; cursor: pointer; transition: all .2s; text-transform: uppercase; letter-spacing: .04em; }
+.lang-btn.active { background: rgba(59,142,255,.2); color: #fff; }
+.lang-btn:hover:not(.active) { color: #fff; }
+.light .lang-btn.active { color: #0a1a3a; }
+
+.theme-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-dim);
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; flex-shrink: 0; font-size: .9rem;
+}
+.theme-btn:hover { border-color: var(--blue-500); color: var(--blue-400); }
+
+main { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 1rem 1.5rem 4rem; }
+section {
+  background: var(--section-bg);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-radius: 16px; padding: 2rem; margin-bottom: 1.25rem;
+  border: 1px solid var(--border);
+  transition: border-color .3s, box-shadow .3s, background .4s, opacity .3s;
+}
+section:hover { border-color: rgba(59,142,255,.2); box-shadow: 0 8px 40px rgba(0,0,0,.2); }
+section.done { opacity: .7; }
+section.done .step-num { background: linear-gradient(135deg, var(--done-color), #2aa855) !important; box-shadow: 0 2px 12px rgba(59,200,100,.3) !important; }
+section.matched { border-color: var(--blue-400) !important; box-shadow: 0 0 0 2px rgba(59,142,255,.15) !important; }
+section h2 { font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; display: flex; align-items: center; gap: .75rem; transition: color .4s; }
+.step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+  font-size: .8rem; font-weight: 700; color: #fff; flex-shrink: 0;
+  box-shadow: 0 2px 12px var(--step-shadow);
+  cursor: pointer; transition: all .3s;
+}
+.step-num:hover { transform: scale(1.1); }
+section h3 { font-size: 1rem; font-weight: 600; color: var(--blue-400); margin: 1.25rem 0 .6rem; }
+section p { margin-bottom: .6rem; }
+section p:last-child { margin-bottom: 0; }
+section ul, section ol { padding-left: 1.5rem; margin-bottom: .6rem; }
+section li { margin-bottom: .35rem; }
+
+a { color: var(--blue-400); text-decoration: none; transition: color .2s; }
+a:hover { color: #80d0ff; }
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: .84em;
+  background: rgba(0,40,80,.4); color: #80d8ff;
+  padding: .12em .45em; border-radius: 5px; border: 1px solid rgba(59,142,255,.08);
+  transition: background .4s, color .4s;
+}
+.light code { background: rgba(0,40,80,.06); color: #005599; border-color: rgba(59,142,255,.1); }
+pre {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: .82rem; line-height: 1.6;
+  background: var(--card-bg); color: #b8d8ff;
+  padding: 1.1rem 1.3rem; border-radius: 10px; overflow-x: auto;
+  margin: .8rem 0; border: 1px solid rgba(59,142,255,.07); position: relative;
+  transition: background .4s, color .4s;
+}
+.light pre { color: #1a3050; }
+.copy-btn {
+  position: absolute; top: .6rem; right: .6rem;
+  background: rgba(255,255,255,.05); backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.06); color: var(--text-dim);
+  padding: .25rem .65rem; border-radius: 6px; cursor: pointer;
+  font-size: .72rem; font-family: inherit;
+  opacity: 0; transition: all .2s;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: rgba(59,142,255,.2); color: #fff; border-color: rgba(59,142,255,.25); }
+.copy-btn.copied { background: rgba(59,200,100,.2); border-color: rgba(59,200,100,.25); color: #6fcf97; opacity: 1; }
+
+.toast {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: rgba(14,20,40,.92); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(59,142,255,.15);
+  padding: .6rem 1.2rem; border-radius: 10px; font-size: .85rem;
+  color: #fff; z-index: 200;
+  opacity: 0; transition: all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events: none; display: flex; align-items: center; gap: .5rem;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+.warning { background: rgba(40,18,18,.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,80,80,.12); border-left: 4px solid #ff6b6b; padding: 1rem 1.25rem; border-radius: 10px; margin: .8rem 0; }
+.warning strong { color: #ff6b6b; }
+.tag { display: inline-block; padding: .2rem .6rem; border-radius: 5px; font-size: .75rem; font-weight: 600; background: rgba(59,142,255,.1); color: var(--blue-400); margin-right: .3rem; }
+.highlight { color: var(--blue-400); font-weight: 500; }
+
+.back-top {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 150;
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--section-bg); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); color: var(--text-dim);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: translateY(20px);
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  pointer-events: none; font-size: 1.1rem;
+}
+.back-top.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.back-top:hover { border-color: var(--blue-500); color: var(--blue-400); }
+
+footer {
+  position: relative; z-index: 1; text-align: center; padding: 3rem 1.5rem;
+  color: var(--text-dim); font-size: .82rem;
+  border-top: 1px solid var(--border);
+  background: rgba(8,11,24,.4); backdrop-filter: blur(12px);
+  transition: background .4s, color .4s;
+}
+
+.search-count {
+  font-size: .72rem; color: var(--text-dim); margin-left: .3rem;
+  display: none; flex-shrink: 0;
+}
+.search-count.show { display: inline; }
+
+@media (max-width: 640px) {
+  .hero { min-height: 60vh; padding: 2rem 1rem 3rem; }
+  .hero-stats { gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+  section { padding: 1.25rem; border-radius: 12px; }
+  pre { font-size: .78rem; padding: .9rem 1rem; }
+  .copy-btn { opacity: 1; }
+  nav { padding: 0 .6rem; gap: .3rem; }
+  .nav-brand span { display: none; }
+  .search-box { max-width: 120px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="bg-glow">
+  <span class="g1"></span><span class="g2"></span><span class="g3"></span>
+</div>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <span>Gentoo</span>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
+    <span class="search-count" id="searchCount"></span>
+  </div>
+  <div class="lang-switch">
+    <button class="lang-btn active" data-lang="vi">VI</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
+  <button class="theme-btn" id="themeBtn" title="Toggle theme">&#9790;</button>
+</nav>
+
+<header class="hero">
+  <div class="hero-badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span data-i18n="heroBadge">Hướng dẫn chi tiết</span>
+  </div>
+  <h1 data-i18n="heroTitle">Cài đặt Gentoo Linux<br>từ A đến Z</h1>
+  <p data-i18n="heroDesc">Một hướng dẫn đầy đủ, dễ hiểu dành cho người mới bắt đầu với Gentoo Linux — từ khâu chuẩn bị cho đến khi hoàn tất hệ thống đầu tiên.</p>
+  <div class="hero-stats">
+    <div><div class="num">15</div><div class="label" data-i18n="heroStat1">bước</div></div>
+    <div><div class="num">30+</div><div class="label" data-i18n="heroStat2">lệnh mẫu</div></div>
+    <div><div class="num">&infin;</div><div class="label" data-i18n="heroStat3">kiên nhẫn</div></div>
+  </div>
+  <div class="scroll-indicator"></div>
+</header>
+
+<div id="toast" class="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg" data-i18n="toastCopied">Đã sao chép!</span>
+</div>
+
+<main id="content"></main>
+
+<button class="back-top" id="backTop" title="Lên đầu">&#8593;</button>
+
+<footer>
+  <p data-i18n="footerText">Gentoo Linux Installation Guide &mdash; Dựa trên <a href="https://wiki.gentoo.org/wiki/Handbook:AMD64" target="_blank">Gentoo Handbook AMD64</a></p>
+  <p style="margin-top:.3rem; font-size:.75rem;" data-i18n="footerSub">Mã nguồn mở </p>
+</footer>
+
+<script>
+const LANG_KEY = 'gentoo-lang';
+const THEME_KEY = 'gentoo-theme';
+const DONE_KEY = 'gentoo-done';
+
+const i18n = {
+  vi: {
+    heroBadge: 'Hướng dẫn chi tiết',
+    heroTitle: 'Cài đặt Gentoo Linux<br>từ A đến Z',
+    heroDesc: 'Một hướng dẫn đầy đủ, dễ hiểu dành cho người mới bắt đầu với Gentoo Linux — từ khâu chuẩn bị cho đến khi hoàn tất hệ thống đầu tiên.',
+    heroStat1: 'bước', heroStat2: 'lệnh mẫu', heroStat3: 'kiên nhẫn',
+    toastCopied: 'Đã sao chép!', toastFail: 'Sao chép thất bại',
+    copy: 'Sao chép', copied: 'Đã sao chép',
+    searchPlaceholder: 'Tìm kiếm...',
+    footerText: 'Gentoo Linux Installation Guide &mdash; Dựa trên <a href="https://wiki.gentoo.org/wiki/Handbook:AMD64" target="_blank">Gentoo Handbook AMD64</a>',
+    footerSub: 'Mã nguồn mở &bull; 2026'
+  },
+  en: {
+    heroBadge: 'Step-by-step guide',
+    heroTitle: 'Install Gentoo Linux<br>from A to Z',
+    heroDesc: 'A complete, easy-to-follow guide for beginners getting started with Gentoo Linux — from preparation to your first fully working system.',
+    heroStat1: 'steps', heroStat2: 'commands', heroStat3: 'patience',
+    toastCopied: 'Copied to clipboard!', toastFail: 'Failed to copy',
+    copy: 'Copy', copied: 'Copied!',
+    searchPlaceholder: 'Search...',
+    footerText: 'Gentoo Linux Installation Guide &mdash; Based on the <a href="https://wiki.gentoo.org/wiki/Handbook:AMD64" target="_blank">Gentoo Handbook AMD64</a>',
+    footerSub: 'Open source &bull; 2026'
+  }
+};
+
+const sections = [
+  {id:"intro",vi:{title:"Giới thiệu",content:`<p>Gentoo là một bản phân phối Linux <span class="highlight">source-based</span>, nghĩa là bạn sẽ <strong>tự biên dịch</strong> toàn bộ hệ thống từ mã nguồn. Điều này mang lại:</p><ul><li><strong>Tối ưu hóa</strong> cho phần cứng cụ thể (qua <code>CFLAGS</code>)</li><li><strong>Kiểm soát tuyệt đối</strong> những gì được cài đặt — không bloatware</li><li><strong>Học sâu</strong> về cách Linux hoạt động từ trong ra ngoài</li></ul><p>Hướng dẫn này dành cho kiến trúc <span class="tag">amd64</span> và sử dụng <span class="tag">UEFI</span> + <span class="tag">GRUB</span>.</p>`},en:{title:"Introduction",content:`<p>Gentoo is a <span class="highlight">source-based</span> Linux distribution, meaning you <strong>compile</strong> the entire system from source code. This gives you:</p><ul><li><strong>Optimization</strong> for your specific hardware (via <code>CFLAGS</code>)</li><li><strong>Full control</strong> over what gets installed — no bloatware</li><li><strong>Deep learning</strong> about how Linux works from the inside out</li></ul><p>This guide targets <span class="tag">amd64</span> architecture with <span class="tag">UEFI</span> + <span class="tag">GRUB</span>.</p>`}},
+  {id:"requirements",vi:{title:"Yêu cầu",content:`<ul><li><strong>Phần cứng:</strong> CPU amd64 (x86_64), RAM tối thiểu 1GB (khuyến nghị 2GB+)</li><li><strong>Ổ cứng:</strong> Tối thiểu 10GB trống (khuyến nghị 20GB+)</li><li><strong>USB/DVD:</strong> Để boot từ Gentoo minimal ISO</li><li><strong>Internet:</strong> Kết nối mạng ổn định trong suốt quá trình cài</li><li><strong>Thời gian:</strong> Biên dịch kernel và các gói có thể mất từ <strong>30 phút đến vài giờ</strong></li></ul>`},en:{title:"Requirements",content:`<ul><li><strong>Hardware:</strong> amd64 (x86_64) CPU, at least 1GB RAM (2GB+ recommended)</li><li><strong>Disk:</strong> At least 10GB free (20GB+ recommended)</li><li><strong>USB/DVD:</strong> To boot from Gentoo minimal ISO</li><li><strong>Internet:</strong> Stable connection throughout the installation</li><li><strong>Time:</strong> Compiling the kernel and packages can take <strong>30 minutes to several hours</strong></li></ul>`}},
+  {id:"download",vi:{title:"Tải ISO & Boot",content:`<ol><li>Tải <strong>Gentoo minimal ISO</strong> từ <a href="https://www.gentoo.org/downloads/" target="_blank">gentoo.org/downloads</a></li><li>Ghi ISO vào USB (thay <code>/dev/sdX</code> bằng đúng thiết bị):<pre>sudo dd if=gentoo-*.iso of=/dev/sdX bs=4M status=progress && sync</pre></li><li>Boot từ USB. Nếu gặp lỗi đồ họa, chọn <strong>gentoo-nofb</strong> ở menu boot.</li></ol>`},en:{title:"Download ISO & Boot",content:`<ol><li>Download the <strong>Gentoo minimal ISO</strong> from <a href="https://www.gentoo.org/downloads/" target="_blank">gentoo.org/downloads</a></li><li>Write the ISO to USB (replace <code>/dev/sdX</code> with your device):<pre>sudo dd if=gentoo-*.iso of=/dev/sdX bs=4M status=progress && sync</pre></li><li>Boot from USB. If you encounter graphical issues, choose <strong>gentoo-nofb</strong> at the boot menu.</li></ol>`}},
+  {id:"networking",vi:{title:"Kết nối mạng",content:`<p>Kiểm tra kết nối Internet ngay sau khi boot:</p><pre>ping -c 3 google.com</pre><p><strong>Wi-Fi</strong> (dùng <code>iwctl</code>):</p><pre>iwctl\n[iwd]# station wlan0 scan\n[iwd]# station wlan0 get-networks\n[iwd]# station wlan0 connect "Tên WiFi"</pre><p><strong>DHCP</strong> (có dây):</p><pre>dhcpcd</pre>`},en:{title:"Network Setup",content:`<p>Check Internet connectivity right after boot:</p><pre>ping -c 3 google.com</pre><p><strong>Wi-Fi</strong> (using <code>iwctl</code>):</p><pre>iwctl\n[iwd]# station wlan0 scan\n[iwd]# station wlan0 get-networks\n[iwd]# station wlan0 connect "SSID"</pre><p><strong>DHCP</strong> (wired):</p><pre>dhcpcd</pre>`}},
+  {id:"partitioning",vi:{title:"Phân vùng ổ đĩa",content:`<p>Ví dụ với bảng phân vùng <strong>GPT</strong> cho UEFI, dùng <code>fdisk</code>:</p><pre>fdisk /dev/nvme0n1\n\nCommand: g\n\nCommand: n \u2192 Enter \u2192 +512M \u2192 t \u2192 1\nCommand: n \u2192 Enter \u2192 +1G\nCommand: n \u2192 Enter \u2192 +8G \u2192 t \u2192 3 \u2192 19\nCommand: n \u2192 Enter \u2192 Enter\nCommand: w</pre><p>Định dạng:</p><pre>mkfs.fat -F 32 /dev/nvme0n1p1\nmkfs.ext4 /dev/nvme0n1p2\nmkfs.ext4 /dev/nvme0n1p4\nmkswap /dev/nvme0n1p3 && swapon /dev/nvme0n1p3</pre>`},en:{title:"Disk Partitioning",content:`<p>Example with <strong>GPT</strong> partition table for UEFI, using <code>fdisk</code>:</p><pre>fdisk /dev/nvme0n1\n\nCommand: g\n\nCommand: n \u2192 Enter \u2192 +512M \u2192 t \u2192 1\nCommand: n \u2192 Enter \u2192 +1G\nCommand: n \u2192 Enter \u2192 +8G \u2192 t \u2192 3 \u2192 19\nCommand: n \u2192 Enter \u2192 Enter\nCommand: w</pre><p>Format partitions:</p><pre>mkfs.fat -F 32 /dev/nvme0n1p1\nmkfs.ext4 /dev/nvme0n1p2\nmkfs.ext4 /dev/nvme0n1p4\nmkswap /dev/nvme0n1p3 && swapon /dev/nvme0n1p3</pre>`}},
+  {id:"stage",vi:{title:"Mount & Stage Tarball",content:`<pre>mount /dev/nvme0n1p4 /mnt/gentoo\nmkdir -p /mnt/gentoo/boot\nmount /dev/nvme0n1p2 /mnt/gentoo/boot\nmount /dev/nvme0n1p1 /mnt/gentoo/boot/efi</pre><p>Đồng bộ thời gian:</p><pre>chronyd -q</pre><p>Tải <strong>stage3</strong> mới nhất:</p><pre>cd /mnt/gentoo\nwget https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64/stage3-amd64-*.tar.xz</pre><p>Giải nén:</p><pre>tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner</pre>`},en:{title:"Mount & Stage Tarball",content:`<pre>mount /dev/nvme0n1p4 /mnt/gentoo\nmkdir -p /mnt/gentoo/boot\nmount /dev/nvme0n1p2 /mnt/gentoo/boot\nmount /dev/nvme0n1p1 /mnt/gentoo/boot/efi</pre><p>Sync system time:</p><pre>chronyd -q</pre><p>Download the latest <strong>stage3</strong>:</p><pre>cd /mnt/gentoo\nwget https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64/stage3-amd64-*.tar.xz</pre><p>Extract stage3:</p><pre>tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner</pre>`}},
+  {id:"portage",vi:{title:"Cấu hình Portage",content:`<p>Mở file cấu hình:</p><pre>nano /mnt/gentoo/etc/portage/make.conf</pre><p>Ví dụ cấu hình cơ bản:</p><pre>COMMON_FLAGS="-march=native -O2 -pipe"\nMAKEOPTS="-j$(nproc)"\nEMERGE_DEFAULT_OPTS="--jobs=2 --load-average=$(nproc)"\nGRUB_PLATFORMS="efi-64"\nUSE="-bluetooth -systemd X kde"</pre><p>Sao chép thông tin DNS:</p><pre>cp --dereference /etc/resolv.conf /mnt/gentoo/etc/</pre>`},en:{title:"Portage Configuration",content:`<p>Edit the config file:</p><pre>nano /mnt/gentoo/etc/portage/make.conf</pre><p>Example configuration:</p><pre>COMMON_FLAGS="-march=native -O2 -pipe"\nMAKEOPTS="-j$(nproc)"\nEMERGE_DEFAULT_OPTS="--jobs=2 --load-average=$(nproc)"\nGRUB_PLATFORMS="efi-64"\nUSE="-bluetooth -systemd X kde"</pre><p>Copy DNS info:</p><pre>cp --dereference /etc/resolv.conf /mnt/gentoo/etc/</pre>`}},
+  {id:"chroot",vi:{title:"Chroot",content:`<p>Mount các hệ thống tập tin:</p><pre>mount --types proc /proc /mnt/gentoo/proc\nmount --rbind /sys /mnt/gentoo/sys\nmount --make-rslave /mnt/gentoo/sys\nmount --rbind /dev /mnt/gentoo/dev\nmount --make-rslave /mnt/gentoo/dev\nmount --bind /run /mnt/gentoo/run</pre><p>Chroot:</p><pre>chroot /mnt/gentoo /bin/bash\nsource /etc/profile\nexport PS1="(chroot) \\\\w # "</pre>`},en:{title:"Chroot",content:`<p>Mount necessary filesystems:</p><pre>mount --types proc /proc /mnt/gentoo/proc\nmount --rbind /sys /mnt/gentoo/sys\nmount --make-rslave /mnt/gentoo/sys\nmount --rbind /dev /mnt/gentoo/dev\nmount --make-rslave /mnt/gentoo/dev\nmount --bind /run /mnt/gentoo/run</pre><p>Chroot in:</p><pre>chroot /mnt/gentoo /bin/bash\nsource /etc/profile\nexport PS1="(chroot) \\\\w # "</pre>`}},
+  {id:"time-locale",vi:{title:"Thời gian & Locale",content:`<p>Đặt timezone (ví dụ Việt Nam):</p><pre>ln -sf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime\nhwclock --systohc</pre><p>Cấu hình locale:</p><pre>nano /etc/locale.gen\n# Bỏ comment: en_US.UTF-8 UTF-8\n# Thêm:       vi_VN.UTF-8 UTF-8</pre><pre>locale-gen\neselect locale set en_US.utf8\nenv-update && source /etc/profile</pre>`},en:{title:"Time & Locale",content:`<p>Set timezone (example for UTC):</p><pre>ln -sf /usr/share/zoneinfo/UTC /etc/localtime\nhwclock --systohc</pre><p>Configure locale:</p><pre>nano /etc/locale.gen\n# Uncomment: en_US.UTF-8 UTF-8</pre><pre>locale-gen\neselect locale set en_US.utf8\nenv-update && source /etc/profile</pre>`}},
+  {id:"kernel",vi:{title:"Biên dịch Kernel",content:`<p>Có hai cách: <strong>genkernel</strong> (dễ, tự động) hoặc <strong>thủ công</strong> (tối ưu hơn).</p><h3>Cách 1: Genkernel (khuyến nghị)</h3><pre>emerge --ask sys-kernel/gentoo-sources\nemerge --ask sys-kernel/genkernel\ngenkernel all</pre><h3>Cách 2: Thủ công (manual)</h3><pre>emerge --ask sys-kernel/gentoo-sources\ncd /usr/src/linux\nmake menuconfig\nmake -j$(nproc)\nmake modules_install\nmake install</pre>`},en:{title:"Kernel Compilation",content:`<p>Two approaches: <strong>genkernel</strong> (easy, automatic) or <strong>manual</strong> (more optimized).</p><h3>Option 1: Genkernel (recommended)</h3><pre>emerge --ask sys-kernel/gentoo-sources\nemerge --ask sys-kernel/genkernel\ngenkernel all</pre><h3>Option 2: Manual</h3><pre>emerge --ask sys-kernel/gentoo-sources\ncd /usr/src/linux\nmake menuconfig\nmake -j$(nproc)\nmake modules_install\nmake install</pre>`}},
+  {id:"fstab",vi:{title:"Cấu hình fstab",content:`<pre>nano /etc/fstab</pre><p>Thêm (thay đúng thiết bị hoặc UUID — dùng <code>blkid</code>):</p><pre>/dev/nvme0n1p1 /boot/efi vfat    defaults 0 2\n/dev/nvme0n1p2 /boot     ext4   defaults 0 2\n/dev/nvme0n1p4 /        ext4   defaults 0 1\n/dev/nvme0n1p3 none     swap   sw       0 0</pre>`},en:{title:"fstab Configuration",content:`<pre>nano /etc/fstab</pre><p>Add (replace with your devices or UUIDs — use <code>blkid</code>):</p><pre>/dev/nvme0n1p1 /boot/efi vfat    defaults 0 2\n/dev/nvme0n1p2 /boot     ext4   defaults 0 2\n/dev/nvme0n1p4 /        ext4   defaults 0 1\n/dev/nvme0n1p3 none     swap   sw       0 0</pre>`}},
+  {id:"hostname",vi:{title:"Hostname & Mạng",content:`<p>Đặt tên máy:</p><pre>nano /etc/conf.d/hostname\n# hostname="gentoo-pc"</pre><p>Cấu hình mạng (netifrc):</p><pre>emerge --ask --noreplace net-misc/netifrc\nnano /etc/conf.d/net\n# config_wlp2s0="dhcp"</pre><pre>cd /etc/init.d\nln -s net.lo net.wlp2s0\nrc-update add net.wlp2s0 default</pre><p>Đặt mật khẩu root:</p><pre>passwd</pre>`},en:{title:"Hostname & Network",content:`<p>Set hostname:</p><pre>nano /etc/conf.d/hostname\n# hostname="gentoo-pc"</pre><p>Network setup (netifrc):</p><pre>emerge --ask --noreplace net-misc/netifrc\nnano /etc/conf.d/net\n# config_enp2s0="dhcp"</pre><pre>cd /etc/init.d\nln -s net.lo net.enp2s0\nrc-update add net.enp2s0 default</pre><p>Set root password:</p><pre>passwd</pre>`}},
+  {id:"grub",vi:{title:"Cài GRUB",content:`<pre>emerge --ask sys-boot/grub sys-fs/dosfstools\ngrub-install --target=x86_64-efi --efi-directory=/boot/efi\ngrub-mkconfig -o /boot/grub/grub.cfg</pre>`},en:{title:"Install GRUB",content:`<pre>emerge --ask sys-boot/grub sys-fs/dosfstools\ngrub-install --target=x86_64-efi --efi-directory=/boot/efi\ngrub-mkconfig -o /boot/grub/grub.cfg</pre>`}},
+  {id:"finish",vi:{title:"Hoàn tất & Khởi động lại",content:`<pre>exit\numount -l /mnt/gentoo/dev{/shm,/pts,}\numount -R /mnt/gentoo\nreboot</pre><p>Rút USB khi máy khởi động lại. Sau khi đăng nhập <strong>root</strong>, chạy:</p><pre>emerge --sync\nemerge --oneshot portage</pre><p>Xin chúc mừng! Bạn đã có một hệ thống Gentoo hoàn chỉnh! &#127881;</p>`},en:{title:"Finish & Reboot",content:`<pre>exit\numount -l /mnt/gentoo/dev{/shm,/pts,}\numount -R /mnt/gentoo\nreboot</pre><p>Remove the USB when rebooting. After logging in as <strong>root</strong>, run:</p><pre>emerge --sync\nemerge --oneshot portage</pre><p>Congratulations! You now have a fully working Gentoo system! &#127881;</p>`}},
+  {id:"tips",vi:{title:"Thủ thuật & Mẹo",content:`<ul><li><strong>Biên dịch chậm?</strong> Dùng <code>MAKEOPTS="-j$(nproc)"</code> và <code>EMERGE_DEFAULT_OPTS="--jobs=2 --load-average=$(nproc)"</code>.</li><li><strong>CCache:</strong> <pre>emerge ccache && echo 'FEATURES="ccache"' >> /etc/portage/make.conf</pre></li><li><strong>Binary packages:</strong> Dùng <code>--getbinpkg</code> để giảm thời gian biên dịch.</li><li><strong>USE flags:</strong> <code>euse -I</code> liệt kê, <code>equery uses &lt;gói&gt;</code> xem chi tiết.</li><li><strong>world file:</strong> <code>/var/lib/portage/world</code> — sao lưu để cài lại sau.</li></ul>`},en:{title:"Tips & Tricks",content:`<ul><li><strong>Compilation slow?</strong> Use <code>MAKEOPTS="-j$(nproc)"</code> and <code>EMERGE_DEFAULT_OPTS="--jobs=2 --load-average=$(nproc)"</code>.</li><li><strong>CCache:</strong> <pre>emerge ccache && echo 'FEATURES="ccache"' >> /etc/portage/make.conf</pre></li><li><strong>Binary packages:</strong> Use <code>--getbinpkg</code> to speed up compilation.</li><li><strong>USE flags:</strong> <code>euse -I</code> to list, <code>equery uses &lt;package&gt;</code> for details.</li><li><strong>world file:</strong> <code>/var/lib/portage/world</code> — back it up for reinstalls.</li></ul>`}}
+];
+
+const content = document.getElementById('content');
+const toast = document.getElementById('toast');
+const toastMsg = document.getElementById('toastMsg');
+const langBtns = document.querySelectorAll('.lang-btn');
+const themeBtn = document.getElementById('themeBtn');
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
+const progressBar = document.getElementById('progressBar');
+const backTop = document.getElementById('backTop');
+
+let currentLang = localStorage.getItem(LANG_KEY) || 'vi';
+let toastTimer;
+let doneSteps = new Set(JSON.parse(localStorage.getItem(DONE_KEY) || '[]'));
+
+function setTheme(theme) {
+  document.documentElement.classList.toggle('light', theme === 'light');
+  themeBtn.textContent = theme === 'light' ? '\u263E' : '\u261E';
+  localStorage.setItem(THEME_KEY, theme);
+}
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.contains('light');
+  setTheme(isLight ? 'dark' : 'light');
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  langBtns.forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  applyI18n();
+  renderSections();
+  searchInput.placeholder = i18n[currentLang].searchPlaceholder;
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (i18n[currentLang][key]) el.innerHTML = i18n[currentLang][key];
+  });
+}
+
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  toastMsg.textContent = msg;
+  toast.classList.add('show');
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function toggleDone(id) {
+  if (doneSteps.has(id)) doneSteps.delete(id);
+  else doneSteps.add(id);
+  localStorage.setItem(DONE_KEY, JSON.stringify([...doneSteps]));
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('done', doneSteps.has(id));
+}
+
+function doSearch(q) {
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  let count = 0;
+  document.querySelectorAll('section').forEach(sec => {
+    const text = sec.textContent.toLowerCase();
+    const match = terms.length === 0 || terms.every(t => text.includes(t));
+    sec.classList.toggle('matched', match && terms.length > 0);
+    if (match && terms.length > 0) count++;
+  });
+  searchCount.textContent = terms.length > 0 ? `${count}/${sections.length}` : '';
+  searchCount.classList.toggle('show', terms.length > 0);
+}
+
+function onScroll() {
+  const docEl = document.documentElement;
+  const scrollTop = docEl.scrollTop;
+  const scrollHeight = docEl.scrollHeight - docEl.clientHeight;
+  const pct = scrollHeight > 0 ? Math.min(scrollTop / scrollHeight * 100, 100) : 0;
+  progressBar.style.width = pct + '%';
+  backTop.classList.toggle('show', scrollTop > 400);
+}
+
+function renderSections() {
+  content.innerHTML = '';
+  sections.forEach((s, i) => {
+    const data = s[currentLang];
+    const sec = document.createElement('section');
+    sec.id = s.id;
+    if (doneSteps.has(s.id)) sec.classList.add('done');
+    const h2 = document.createElement('h2');
+    const num = document.createElement('span');
+    num.className = 'step-num';
+    num.textContent = i + 1;
+    num.title = data.title;
+    num.addEventListener('click', () => toggleDone(s.id));
+    h2.appendChild(num);
+    h2.append(data.title);
+    sec.append(h2);
+    sec.insertAdjacentHTML('beforeend', data.content);
+    content.appendChild(sec);
+  });
+  document.querySelectorAll('pre').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = i18n[currentLang].copy;
+    btn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(pre.textContent);
+        btn.textContent = i18n[currentLang].copied;
+        btn.classList.add('copied');
+        showToast(i18n[currentLang].toastCopied);
+      } catch { showToast(i18n[currentLang].toastFail); }
+      setTimeout(() => {
+        btn.textContent = i18n[currentLang].copy;
+        btn.classList.remove('copied');
+      }, 2000);
+    };
+    pre.appendChild(btn);
+  });
+}
+
+function init() {
+  setTheme(localStorage.getItem(THEME_KEY) || 'dark');
+  langBtns.forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+  themeBtn.addEventListener('click', toggleTheme);
+  searchInput.addEventListener('input', e => doSearch(e.target.value));
+  backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  window.addEventListener('scroll', onScroll, { passive: true });
+  setLang(currentLang);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
